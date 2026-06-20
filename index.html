@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AWS Student Builder Group at PUCE</title>
+  <style>
+    /* ── Google Font (con fallback monospace si no hay internet) ── */
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    /* ── VARIABLES ── */
+    :root {
+      --orange:  #FF9900;
+      --orange2: #cc7a00;
+      --bg:      #07070f;
+      --bg2:     #0d0d1a;
+      --bg3:     #12121e;
+      --white:   #e8e8ff;
+      --dim:     #5555aa;
+      --green:   #00ff88;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--white);
+      font-size: 10px;
+      line-height: 1.9;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; }
+    .accent { color: var(--orange); }
+
+    /* ══════════════════════════════════════════
+       PIXEL GRID BACKGROUND
+    ══════════════════════════════════════════ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,153,0,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,153,0,.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ══════════════════════════════════════════
+       STARS
+    ══════════════════════════════════════════ */
+    #stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: #fff;
+      animation: twinkle var(--d, 3s) infinite alternate;
+    }
+    @keyframes twinkle {
+      from { opacity: .1; }
+      to   { opacity: 1;  }
+    }
+
+    /* ══════════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: var(--bg);
+      border-bottom: 2px solid var(--orange);
+      box-shadow: 0 0 24px rgba(255,153,0,.25);
+    }
+    .nav-logo {
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 28px;
+    }
+    .nav-links a {
+      font-size: 8px;
+      color: var(--dim);
+      transition: color .1s;
+    }
+    .nav-links a:hover { color: var(--orange); }
+
+    /* ══════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 110px 24px 72px;
+      gap: 22px;
+    }
+
+    /* Floating clouds */
+    .cloud {
+      position: absolute;
+      font-size: 48px;
+      color: rgba(255,153,0,.08);
+      pointer-events: none;
+      animation: drift 6s ease-in-out infinite alternate;
+    }
+    .cloud:nth-child(2) { top: 15%; left:  6%; font-size: 28px; animation-delay: 0s;   }
+    .cloud:nth-child(3) { top: 25%; right: 8%; font-size: 56px; animation-delay: 2s;   }
+    .cloud:nth-child(4) { bottom: 20%; left: 12%; font-size: 36px; animation-delay: 1s;}
+    @keyframes drift {
+      from { transform: translateY(0)   translateX(0); }
+      to   { transform: translateY(-14px) translateX(6px); }
+    }
+
+    /* Badge */
+    .hero-badge {
+      font-size: 8px;
+      color: var(--orange);
+      border: 2px solid var(--orange);
+      padding: 6px 16px;
+      letter-spacing: 3px;
+      animation: blink-border 2s step-end infinite;
+    }
+    @keyframes blink-border {
+      0%,100% { border-color: var(--orange); }
+      50%     { border-color: transparent;   }
+    }
+
+    /* Title */
+    .hero-title {
+      font-size: clamp(30px, 7vw, 64px);
+      line-height: 1.15;
+      text-shadow: 4px 4px 0 var(--orange2), 0 0 40px rgba(255,153,0,.3);
+    }
+    .hero-title span {
+      color: var(--orange);
+      display: block;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 4px 4px 0 var(--orange2), 0 0 20px rgba(255,153,0,.4); }
+      to   { text-shadow: 4px 4px 0 var(--orange2), 0 0 60px rgba(255,153,0,.95); }
+    }
+
+    /* Subtitle */
+    .hero-sub {
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 1px;
+      max-width: 480px;
+    }
+
+    /* ── Pixel Art Character (canvas-style divs) ── */
+    .sprite-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      animation: jump 1s steps(2) infinite alternate;
+    }
+    @keyframes jump {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-8px); }
+    }
+    .sprite {
+      display: grid;
+      grid-template-columns: repeat(11, 12px);
+      grid-template-rows: repeat(12, 12px);
+      gap: 0;
+      image-rendering: pixelated;
+    }
+    .px { width: 12px; height: 12px; }
+    .O  { background: var(--orange); }   /* orange / skin */
+    .B  { background: #1a1aff; }         /* blue shirt  */
+    .K  { background: #111; }            /* black       */
+    .W  { background: #fff; }            /* white eyes  */
+    .N  { background: #5c3317; }         /* brown hair  */
+    .G  { background: #888; }            /* grey shoes  */
+    .E  { background: transparent; }    /* empty       */
+
+    .sprite-label {
+      font-size: 7px;
+      color: var(--dim);
+    }
+
+    /* CTA */
+    .cta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .btn {
+      font-family: inherit;
+      font-size: 9px;
+      padding: 13px 22px;
+      cursor: pointer;
+      border: none;
+      display: inline-block;
+      /* hard pixel shadow */
+      box-shadow: 4px 4px 0 #000;
+      transition: transform .08s, box-shadow .08s;
+    }
+    .btn:hover  { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #000; }
+    .btn:active { transform: translate(2px,2px);   box-shadow: 2px 2px 0 #000; }
+    .btn-fill {
+      background: var(--orange);
+      color: #000;
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--orange);
+      border: 2px solid var(--orange);
+      box-shadow: 4px 4px 0 var(--orange2);
+    }
+    .btn-outline:hover { box-shadow: 6px 6px 0 var(--orange2); }
+
+    /* Scroll hint */
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      font-size: 8px;
+      color: var(--dim);
+      animation: blink 1.2s step-end infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%     { opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════════
+       SECTIONS
+    ══════════════════════════════════════════ */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 80px 24px;
+    }
+    .inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .section-alt { background: var(--bg2); }
+
+    .section-title {
+      font-size: 13px;
+      color: var(--orange);
+      text-align: center;
+      margin-bottom: 52px;
+      letter-spacing: 2px;
+    }
+    .section-title::before { content: '// '; opacity: .5; }
+
+    /* ══════════════════════════════════════════
+       CARDS — ABOUT
+    ══════════════════════════════════════════ */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: var(--bg3);
+      border: 2px solid var(--orange);
+      padding: 28px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 5px 5px 0 var(--orange2);
+      transition: transform .1s, box-shadow .1s;
+    }
+    .card:hover { transform: translate(-3px,-3px); box-shadow: 8px 8px 0 var(--orange2); }
+    .card-icon { font-size: 30px; }
+    .card h3   { font-size: 10px; color: var(--orange); }
+    .card p    { font-size: 8px;  color: var(--dim); line-height: 2.2; }
+
+    /* ══════════════════════════════════════════
+       STATS
+    ══════════════════════════════════════════ */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 24px;
+    }
+    .stat {
+      background: var(--bg3);
+      border: 2px solid rgba(255,153,0,.25);
+      padding: 28px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .stat-n {
+      font-size: 36px;
+      color: var(--orange);
+      text-shadow: 0 0 20px rgba(255,153,0,.7);
+    }
+    .stat-l {
+      font-size: 8px;
+      color: var(--dim);
+    }
+    .bar {
+      height: 8px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,153,0,.2);
+    }
+    .bar-inner {
+      height: 100%;
+      background: var(--orange);
+      box-shadow: 0 0 8px rgba(255,153,0,.8);
+      width: 0;
+      transition: width 1.6s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ══════════════════════════════════════════
+       JOIN FORM
+    ══════════════════════════════════════════ */
+    .join-sub {
+      text-align: center;
+      font-size: 9px;
+      color: var(--dim);
+      margin-bottom: 36px;
+    }
+    .form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .form input {
+      width: 100%;
+      background: var(--bg3);
+      border: 2px solid var(--orange);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 8px;
+      padding: 14px 16px;
+      outline: none;
+    }
+    .form input::placeholder { color: var(--dim); }
+    .form input:focus { box-shadow: 0 0 14px rgba(255,153,0,.4); }
+
+    .ok-msg {
+      display: none;
+      margin-top: 20px;
+      font-size: 9px;
+      color: var(--green);
+      text-align: center;
+    }
+
+    /* ══════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════ */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 28px 24px;
+      border-top: 2px solid var(--orange);
+      font-size: 8px;
+      color: var(--dim);
+      background: var(--bg);
+    }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      nav { padding: 12px 16px; }
+      .nav-links { gap: 14px; }
+      .hero-title { font-size: 28px; }
+      .cta { flex-direction: column; align-items: center; }
+      .section-title { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Stars -->
+  <div id="stars"></div>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <span class="nav-logo">▶ AWS <span class="accent">SBG@PUCE</span></span>
+    <ul class="nav-links">
+      <li><a href="#about">Nosotros</a></li>
+      <li><a href="#stats">Stats</a></li>
+      <li><a href="#join">Unirse</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <header class="hero">
+    <!-- clouds -->
+    <div class="cloud">☁</div>
+    <div class="cloud">☁</div>
+    <div class="cloud">☁</div>
+
+    <div class="hero-badge">[ AWS STUDENT BUILDER GROUP ]</div>
+
+    <h1 class="hero-title">
+      AWS SBG<span>at PUCE</span>
+    </h1>
+
+    <p class="hero-sub">Construye. Aprende. Lanza al cloud. &nbsp;🎓</p>
+
+    <!-- Pixel sprite character -->
+    <div class="sprite-wrap">
+      <div class="sprite" id="sprite"></div>
+      <p class="sprite-label">▲ builder mode: ON</p>
+    </div>
+
+    <div class="cta">
+      <a href="#join"  class="btn btn-fill">▶ ÚNETE AHORA</a>
+      <a href="#about" class="btn btn-outline">◉ VER MÁS</a>
+    </div>
+
+    <div class="scroll-hint">▼ scroll ▼</div>
+  </header>
+
+  <!-- ── ABOUT ── -->
+  <section id="about">
+    <div class="inner">
+      <h2 class="section-title">QUIÉNES SOMOS</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">☁️</div>
+          <h3>Cloud First</h3>
+          <p>Construimos proyectos reales en AWS con créditos estudiantiles y acceso directo a servicios cloud.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛠️</div>
+          <h3>Build Together</h3>
+          <p>Hackatones, talleres y proyectos colaborativos para crecer como comunidad de builders en PUCE.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🚀</div>
+          <h3>Level Up</h3>
+          <p>Certificaciones AWS, mentorías y conexión con la red global de Student Builder Groups.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STATS ── -->
+  <section id="stats" class="section-alt">
+    <div class="inner">
+      <h2 class="section-title">STATS DEL GRUPO</h2>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-n" data-target="42">0</span>
+          <span class="stat-l">Miembros</span>
+          <div class="bar"><div class="bar-inner" data-w="84"></div></div>
+        </div>
+        <div class="stat">
+          <span class="stat-n" data-target="12">0</span>
+          <span class="stat-l">Proyectos</span>
+          <div class="bar"><div class="bar-inner" data-w="60"></div></div>
+        </div>
+        <div class="stat">
+          <span class="stat-n" data-target="8">0</span>
+          <span class="stat-l">Eventos</span>
+          <div class="bar"><div class="bar-inner" data-w="40"></div></div>
+        </div>
+        <div class="stat">
+          <span class="stat-n" data-target="99">0</span>
+          <span class="stat-l">% Hype</span>
+          <div class="bar"><div class="bar-inner" data-w="99"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── JOIN ── -->
+  <section id="join">
+    <div class="inner">
+      <h2 class="section-title">ÚNETE AL GRUPO</h2>
+      <p class="join-sub">¿Listo para subir de nivel en el cloud?</p>
+      <form class="form" onsubmit="submitForm(event)">
+        <input type="text"  placeholder="▸  TU NOMBRE" required />
+        <input type="email" placeholder="▸  TU EMAIL @puce.edu.ec" required />
+        <button type="submit" class="btn btn-fill">▶ REGISTRARME</button>
+      </form>
+      <p class="ok-msg" id="okMsg">✅ ¡LISTO! Bienvenido al equipo, builder. 🚀</p>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <p>© 2025 &nbsp;<span class="accent">AWS Student Builder Group at PUCE</span>&nbsp; | Made with ☁ &amp; pixels</p>
+  </footer>
+
+  <script>
+    /* ── STARS ── */
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 90; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top  = Math.random() * 100 + '%';
+      s.style.setProperty('--d', (1.5 + Math.random() * 4).toFixed(1) + 's');
+      s.style.opacity = (0.2 + Math.random() * 0.8).toFixed(2);
+      starsEl.appendChild(s);
+    }
+
+    /* ── PIXEL SPRITE ── */
+    // 12 rows × 11 cols pixel art builder character
+    // E=empty K=black O=orange(skin) N=brown(hair) W=white B=blue G=grey
+    const map = [
+      'EEEENNNEEEE',
+      'EENNNNNNNEE',
+      'EENOONONOEE',
+      'EENOOOOOONE',  // slight smile
+      'EEEOOOOOONE',
+      'EEBBBBBBBEE',  // shirt
+      'EBBBBBBBBNE',
+      'EEBBOBBBBEE',
+      'EEEOOOOOONE',
+      'EEEOOEOOEEE',
+      'EEEGGEGGEEE',
+      'EEKGGEEGKEE',
+    ];
+    const colors = { E:'transparent', K:'#111', O:'#ffb347', N:'#5c3317', W:'#fff', B:'#1a5cff', G:'#888' };
+    const sprite = document.getElementById('sprite');
+    map.forEach(row => {
+      [...row].forEach(c => {
+        const px = document.createElement('div');
+        px.className = 'px';
+        px.style.background = colors[c] || 'transparent';
+        sprite.appendChild(px);
+      });
+    });
+
+    /* ── STAT COUNTERS ── */
+    const countUp = (el) => {
+      const target = +el.dataset.target;
+      let cur = 0;
+      const step = target / 60;
+      const t = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        el.textContent = Math.floor(cur);
+        if (cur >= target) clearInterval(t);
+      }, 20);
+    };
+
+    const barAnimate = (el) => {
+      setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 100);
+    };
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        if (el.classList.contains('stat-n'))    countUp(el);
+        if (el.classList.contains('bar-inner')) barAnimate(el);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.4 });
+
+    document.querySelectorAll('.stat-n, .bar-inner').forEach(el => io.observe(el));
+
+    /* ── FORM ── */
+    function submitForm(e) {
+      e.preventDefault();
+      const msg = document.getElementById('okMsg');
+      msg.style.display = 'block';
+      e.target.reset();
+      setTimeout(() => { msg.style.display = 'none'; }, 6000);
+    }
+  </script>
+</body>
+</html>
